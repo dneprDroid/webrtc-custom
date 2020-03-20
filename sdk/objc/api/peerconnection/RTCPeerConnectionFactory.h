@@ -10,6 +10,16 @@
 
 #import <Foundation/Foundation.h>
 
+#ifndef AUDIO_SAMPLING_SOURCE
+
+#import <AudioToolbox/AudioToolbox.h>
+
+#import <CoreAudio/CoreAudioTypes.h>
+#import <AudioToolbox/AudioQueue.h>
+#import <AudioUnit/AudioUnit.h>
+
+#endif // AUDIO_SAMPLING_SOURCE
+
 #import "RTCMacros.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -36,6 +46,17 @@ RTC_OBJC_EXPORT
 /* Initialize object with injectable video encoder/decoder factories */
 - (instancetype)initWithEncoderFactory:(nullable id<RTCVideoEncoderFactory>)encoderFactory
                         decoderFactory:(nullable id<RTCVideoDecoderFactory>)decoderFactory;
+
+#ifndef AUDIO_SAMPLING_SOURCE
+
+-(BOOL)putSampleData: (AudioUnitRenderActionFlags*) flags
+          time_stamp: (AudioTimeStamp*) time_stamp
+          bus_number: (uint32_t) bus_number
+          num_frames: (uint32_t) num_frames
+             io_data: (AudioBufferList*) io_data;
+
+#endif
+
 
 /** Initialize an RTCAudioSource with constraints. */
 - (RTCAudioSource *)audioSourceWithConstraints:(nullable RTCMediaConstraints *)constraints;

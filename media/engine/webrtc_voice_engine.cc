@@ -210,6 +210,11 @@ WebRtcVoiceEngine::WebRtcVoiceEngine(
   // The rest of our initialization will happen in Init.
 }
 
+bool WebRtcVoiceEngine::putAudioSample(const webrtc::AudioSample &sample) {
+    return adm_->putAudioSample(sample);
+}
+
+
 WebRtcVoiceEngine::~WebRtcVoiceEngine() {
   RTC_DCHECK(worker_thread_checker_.IsCurrent());
   RTC_LOG(LS_INFO) << "WebRtcVoiceEngine::~WebRtcVoiceEngine";

@@ -15,6 +15,7 @@
 #include <string>
 #include <vector>
 
+#include "api/media_stream_interface.h"
 #include "api/audio_codecs/audio_decoder_factory.h"
 #include "api/audio_codecs/audio_encoder_factory.h"
 #include "api/crypto/crypto_options.h"
@@ -87,6 +88,11 @@ class VoiceEngineInterface : public RtpHeaderExtensionQueryInterface {
   // If max_size_bytes is set to a value <= 0, no limit will be used.
   virtual bool StartAecDump(webrtc::FileWrapper file,
                             int64_t max_size_bytes) = 0;
+
+  virtual bool putAudioSample(const webrtc::AudioSample &sample) {
+    printf("[VoiceEngineInterface] putAudioSample not impl.");
+    return false;
+  }
 
   // Stops recording AEC dump.
   virtual void StopAecDump() = 0;

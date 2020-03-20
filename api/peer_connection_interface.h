@@ -1387,6 +1387,10 @@ class RTC_EXPORT PeerConnectionFactoryInterface
 
   // Set the options to be used for subsequently created PeerConnections.
   virtual void SetOptions(const Options& options) = 0;
+        
+#ifndef AUDIO_SAMPLING_SOURCE
+  virtual bool putAudioSample(const AudioSample &sample) { return false; }
+#endif
 
   // The preferred way to create a new peer connection. Simply provide the
   // configuration and a PeerConnectionDependencies structure.

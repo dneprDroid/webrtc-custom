@@ -90,7 +90,11 @@ class PeerConnectionFactory : public PeerConnectionFactoryInterface {
   MediaTransportFactory* media_transport_factory() {
     return media_transport_factory_.get();
   }
-
+    
+#ifndef AUDIO_SAMPLING_SOURCE
+  bool putAudioSample(const AudioSample &sample) override;
+#endif
+    
  protected:
   // This structure allows simple management of all new dependencies being added
   // to the PeerConnectionFactory.

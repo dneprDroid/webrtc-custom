@@ -204,6 +204,14 @@ RtpCapabilities PeerConnectionFactory::GetRtpReceiverCapabilities(
   FATAL();
 }
 
+#ifndef AUDIO_SAMPLING_SOURCE
+
+bool PeerConnectionFactory::putAudioSample(const AudioSample &sample) {
+    return media_engine_->voice().putAudioSample(sample);
+}
+
+#endif
+
 rtc::scoped_refptr<AudioSourceInterface>
 PeerConnectionFactory::CreateAudioSource(const cricket::AudioOptions& options) {
   RTC_DCHECK(signaling_thread_->IsCurrent());
