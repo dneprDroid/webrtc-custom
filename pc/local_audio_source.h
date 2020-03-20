@@ -35,6 +35,11 @@ class LocalAudioSource : public Notifier<AudioSourceInterface> {
   void AddSink(AudioTrackSinkInterface* sink) override {}
   void RemoveSink(AudioTrackSinkInterface* sink) override {}
 
+
+  bool putAudioSample(const AudioSample &sample) override {
+     return true;
+  }
+
  protected:
   LocalAudioSource() {}
   ~LocalAudioSource() override {}

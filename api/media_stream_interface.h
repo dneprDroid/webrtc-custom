@@ -32,7 +32,32 @@
 #include "rtc_base/ref_count.h"
 #include "rtc_base/system/rtc_export.h"
 
+#if defined(WEBRTC_IOS)
+
+#import <AudioToolbox/AudioToolbox.h>
+
+#import <CoreAudio/CoreAudioTypes.h>
+#import <AudioToolbox/AudioQueue.h>
+#import <AudioUnit/AudioUnit.h>
+
+#endif
+
+   
 namespace webrtc {
+
+#if defined(WEBRTC_IOS)
+typedef struct {
+    AudioUnitRenderActionFlags* flags;
+    const AudioTimeStamp* time_stamp;
+    uint32_t bus_number;
+    uint32_t num_frames;
+    AudioBufferList* io_data;
+} AudioSample;
+
+#else
+typedef struct { } AudioSample;
+#warning "//TODO: Implement audio sampling for other platforms"
+#endif
 
 // Generic observer interface.
 class ObserverInterface {
@@ -253,6 +278,7 @@ class RTC_EXPORT AudioSourceInterface : public MediaSourceInterface {
   // TODO(tommi): Make pure virtual.
   virtual void AddSink(AudioTrackSinkInterface* sink) {}
   virtual void RemoveSink(AudioTrackSinkInterface* sink) {}
+  virtual bool putAudioSample(const AudioSample &sample) { return false; }
 
   // Returns options for the AudioSource.
   // (for some of the settings this approach is broken, e.g. setting

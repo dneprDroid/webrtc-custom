@@ -49,4 +49,15 @@
   _nativeAudioSource->SetVolume(volume);
 }
 
+-(BOOL)  putSampleData: (AudioUnitRenderActionFlags*) flags
+            time_stamp: (AudioTimeStamp*) time_stamp
+            bus_number: (uint32_t) bus_number
+            num_frames: (uint32_t) num_frames
+               io_data: (AudioBufferList*) io_data {
+    
+    return _nativeAudioSource->putAudioSample({
+        flags, time_stamp, bus_number, num_frames, io_data
+    });
+}
+
 @end

@@ -9,6 +9,11 @@
  */
 
 #import <Foundation/Foundation.h>
+#import <AudioToolbox/AudioToolbox.h>
+
+#import <CoreAudio/CoreAudioTypes.h>
+#import <AudioToolbox/AudioQueue.h>
+#import <AudioUnit/AudioUnit.h>
 
 #import "RTCMacros.h"
 #import "RTCMediaSource.h"
@@ -26,6 +31,12 @@ RTC_OBJC_EXPORT
 // TODO(kthelgason): Property stays here temporarily until a proper volume-api
 // is available on the surface exposed by webrtc.
 @property(nonatomic, assign) double volume;
+
+-(BOOL)putSampleData: (AudioUnitRenderActionFlags*) flags
+          time_stamp: (AudioTimeStamp*) time_stamp
+          bus_number: (uint32_t) bus_number
+          num_frames: (uint32_t) num_frames
+             io_data: (AudioBufferList*) io_data;
 
 @end
 
