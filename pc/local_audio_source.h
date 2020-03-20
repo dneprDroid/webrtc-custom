@@ -37,7 +37,8 @@ class LocalAudioSource : public Notifier<AudioSourceInterface> {
 
 
   bool putAudioSample(const AudioSample &sample) override {
-     return true;
+     printf("[LocalAudioSource] putAudioSample not impl.!!!");
+     return false;
   }
 
  protected:

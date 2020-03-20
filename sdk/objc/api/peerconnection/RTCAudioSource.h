@@ -32,12 +32,17 @@ RTC_OBJC_EXPORT
 // is available on the surface exposed by webrtc.
 @property(nonatomic, assign) double volume;
 
+#ifdef AUDIO_SAMPLING_SOURCE
+
 -(BOOL)putSampleData: (AudioUnitRenderActionFlags*) flags
           time_stamp: (AudioTimeStamp*) time_stamp
           bus_number: (uint32_t) bus_number
           num_frames: (uint32_t) num_frames
              io_data: (AudioBufferList*) io_data;
 
+#endif
+
 @end
+
 
 NS_ASSUME_NONNULL_END
