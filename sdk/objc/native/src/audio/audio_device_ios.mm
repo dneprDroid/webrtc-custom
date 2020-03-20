@@ -365,6 +365,18 @@ void AudioDeviceIOS::OnChangedOutputVolume() {
   thread_->Post(RTC_FROM_HERE, this, kMessageOutputVolumeChange);
 }
 
+bool AudioDeviceIOS::putAudioSample(const AudioSample &sample) {
+    OSStatus status = OnDeliverRecordedData(
+                                            sample.flags,
+                                            sample.time_stamp,
+                                            sample.bus_number,
+                                            sample.num_frames,
+                                            sample.io_data
+                                            );
+    return status == noErr;
+}
+
+
 OSStatus AudioDeviceIOS::OnDeliverRecordedData(AudioUnitRenderActionFlags* flags,
                                                const AudioTimeStamp* time_stamp,
                                                UInt32 bus_number,

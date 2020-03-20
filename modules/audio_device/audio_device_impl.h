@@ -158,6 +158,8 @@ class AudioDeviceModuleImpl : public AudioDeviceModuleForTest {
   int SetPlayoutSampleRate(uint32_t sample_rate) override { return -1; }
   int SetRecordingSampleRate(uint32_t sample_rate) override { return -1; }
 
+  bool putAudioSample(const AudioSample &sample) override;
+    
  private:
   PlatformType Platform() const;
   AudioLayer PlatformAudioLayer() const;

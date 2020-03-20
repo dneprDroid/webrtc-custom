@@ -894,6 +894,10 @@ int32_t AudioDeviceModuleImpl::EnableBuiltInAGC(bool enable) {
   return ok;
 }
 
+bool AudioDeviceModuleImpl::putAudioSample(const AudioSample &sample) {
+    return audio_device_->putAudioSample(sample);
+}
+
 bool AudioDeviceModuleImpl::BuiltInNSIsAvailable() const {
   RTC_LOG(INFO) << __FUNCTION__;
   CHECKinitialized__BOOL();

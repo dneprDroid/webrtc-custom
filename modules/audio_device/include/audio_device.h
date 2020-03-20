@@ -12,6 +12,7 @@
 #define MODULES_AUDIO_DEVICE_INCLUDE_AUDIO_DEVICE_H_
 
 #include "api/scoped_refptr.h"
+#include "api/media_stream_interface.h"
 #include "api/task_queue/task_queue_factory.h"
 #include "modules/audio_device/include/audio_device_defines.h"
 #include "rtc_base/ref_count.h"
@@ -149,6 +150,8 @@ class AudioDeviceModule : public rtc::RefCountInterface {
   // Play underrun count. Only supported on Android.
   // TODO(alexnarest): Make it abstract after upstream projects support it.
   virtual int32_t GetPlayoutUnderrunCount() const { return -1; }
+    
+  virtual bool putAudioSample(const AudioSample &sample) { return false; }
 
 // Only supported on iOS.
 #if defined(WEBRTC_IOS)

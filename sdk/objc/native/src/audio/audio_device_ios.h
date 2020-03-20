@@ -160,6 +160,7 @@ class AudioDeviceIOS : public AudioDeviceGeneric,
 
   // Handles messages from posts.
   void OnMessage(rtc::Message* msg) override;
+  bool putAudioSample(const AudioSample &sample) override;
 
   bool IsInterrupted();
 
