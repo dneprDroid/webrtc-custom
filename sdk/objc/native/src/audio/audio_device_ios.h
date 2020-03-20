@@ -12,6 +12,7 @@
 #define SDK_OBJC_NATIVE_SRC_AUDIO_AUDIO_DEVICE_IOS_H_
 
 #include <memory>
+#include <atomic>
 
 #include "audio_session_observer.h"
 #include "modules/audio_device/audio_device_generic.h"
@@ -262,7 +263,7 @@ class AudioDeviceIOS : public AudioDeviceGeneric,
   // Set to 1 when recording is active and 0 otherwise.
   volatile int recording_;
                            
-  volatile bool audio_sampling_initialized_;
+  std::atomic<bool> audio_sampling_initialized_;
 
   // Set to 1 when playout is active and 0 otherwise.
   volatile int playing_;

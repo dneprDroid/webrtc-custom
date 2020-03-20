@@ -65,7 +65,7 @@
   BOOL _hasStartedAecDump;
     
   webrtc::AudioDeviceModule *_adm;
-//  rtc::BufferT<int16_t> _record_audio_buffer;
+  rtc::BufferT<int16_t> _record_audio_buffer;
 }
 
 @synthesize nativeFactory = _nativeFactory;
@@ -271,7 +271,7 @@
 -(BOOL)putAudioSample: (CMSampleBufferRef) sampleBuffer {
     using webrtc::ios_adm::VoiceProcessingAudioUnit;
     
-//    _record_audio_buffer.Clear();
+    _record_audio_buffer.Clear();
     
     CMFormatDescriptionRef descr = CMSampleBufferGetFormatDescription(sampleBuffer);
     const AudioStreamBasicDescription *audioDescr = CMAudioFormatDescriptionGetStreamBasicDescription(descr);
@@ -311,16 +311,11 @@
     logFrame(@"VoiceProcessingAudioUnit::kBytesPerSample = %i",
              VoiceProcessingAudioUnit::kBytesPerSample);
 
-//    _record_audio_buffer.SetData(reinterpret_cast<int16_t*>(audio_buffer->mData),
-//                                 audio_buffer->mDataByteSize / VoiceProcessingAudioUnit::kBytesPerSample);
+    _record_audio_buffer.SetData(reinterpret_cast<int16_t*>(audio_buffer->mData),
+                                 audio_buffer->mDataByteSize / VoiceProcessingAudioUnit::kBytesPerSample);
 
-    size_t buffer_size = audio_buffer->mDataByteSize / VoiceProcessingAudioUnit::kBytesPerSample;
-    int16_t *buffer = (int16_t *) malloc(buffer_size * sizeof(int16_t));
-    memcpy(buffer, audio_buffer->mData, audio_buffer->mDataByteSize); // reinterpret_cast<int16_t*>(audio_buffer->mData)
-    
     bool status = _adm->putAudioSample({
-        buffer, // buffer
-        buffer_size, // buffer size
+        std::move(_record_audio_buffer),
         kFixedRecordDelayEstimate, // record_delay_ms
     });
 
