@@ -63,7 +63,9 @@
   std::unique_ptr<rtc::Thread> _workerThread;
   std::unique_ptr<rtc::Thread> _signalingThread;
   BOOL _hasStartedAecDump;
-  rtc::BufferT<int16_t> _record_audio_buffer;
+    
+  webrtc::AudioDeviceModule *_adm;
+//  rtc::BufferT<int16_t> _record_audio_buffer;
 }
 
 @synthesize nativeFactory = _nativeFactory;
@@ -221,6 +223,7 @@
 #ifndef HAVE_NO_MEDIA
     dependencies.task_queue_factory = webrtc::CreateDefaultTaskQueueFactory();
     cricket::MediaEngineDependencies media_deps;
+    _adm = std::move(audioDeviceModule);
     media_deps.adm = std::move(audioDeviceModule);
     media_deps.task_queue_factory = dependencies.task_queue_factory.get();
     media_deps.audio_encoder_factory = std::move(audioEncoderFactory);
@@ -266,7 +269,9 @@
 //#define logFrame(...) { }
 
 -(BOOL)putAudioSample: (CMSampleBufferRef) sampleBuffer {
-    _record_audio_buffer.Clear();
+    using webrtc::ios_adm::VoiceProcessingAudioUnit;
+    
+//    _record_audio_buffer.Clear();
     
     CMFormatDescriptionRef descr = CMSampleBufferGetFormatDescription(sampleBuffer);
     const AudioStreamBasicDescription *audioDescr = CMAudioFormatDescriptionGetStreamBasicDescription(descr);
@@ -278,15 +283,14 @@
     logFrame(@"received AudioStreamBasicDescription: audioDescr->mFramesPerPacket = %i,", audioDescr->mFramesPerPacket);
     logFrame(@"received AudioStreamBasicDescription: audioDescr->mBytesPerFrame = %i,", audioDescr->mBytesPerFrame);
 
-    _record_audio_buffer.SetSize(audioDescr->mFramesPerPacket * audioDescr->mBytesPerFrame);
 
     AudioBufferList audio_buffer_list;
     audio_buffer_list.mNumberBuffers = 1;
     AudioBuffer* audio_buffer = &audio_buffer_list.mBuffers[0];
     audio_buffer->mNumberChannels = audioDescr->mChannelsPerFrame;
-    audio_buffer->mDataByteSize =
-        _record_audio_buffer.size() * webrtc::ios_adm::VoiceProcessingAudioUnit::kBytesPerSample;
-    audio_buffer->mData = reinterpret_cast<int8_t*>(_record_audio_buffer.data());
+//    audio_buffer->mDataByteSize =
+//        _record_audio_buffer.size() * webrtc::ios_adm::VoiceProcessingAudioUnit::kBytesPerSample;
+//    audio_buffer->mData = reinterpret_cast<int8_t*>(_record_audio_buffer.data());
     
     CMBlockBufferRef blockBuffer;
 //    CMSampleBufferGetAudioBufferListWithRetainedBlockBuffer(sampleBuffer, NULL, &audioBufferList, sizeof(audioBufferList), NULL, NULL, 0, &blockBuffer);
@@ -303,14 +307,25 @@
                "failed to create audio buffer via CMSampleBufferGetAudioBufferListWithRetainedBlockBuffer");
         return false;
     }
+    logFrame(@"audio_buffer.mDataByteSize = %i", audio_buffer->mDataByteSize);
+    logFrame(@"VoiceProcessingAudioUnit::kBytesPerSample = %i",
+             VoiceProcessingAudioUnit::kBytesPerSample);
+
+//    _record_audio_buffer.SetData(reinterpret_cast<int16_t*>(audio_buffer->mData),
+//                                 audio_buffer->mDataByteSize / VoiceProcessingAudioUnit::kBytesPerSample);
+
+    size_t buffer_size = audio_buffer->mDataByteSize / VoiceProcessingAudioUnit::kBytesPerSample;
+    int16_t *buffer = (int16_t *) malloc(buffer_size * sizeof(int16_t));
+    memcpy(buffer, audio_buffer->mData, audio_buffer->mDataByteSize); // reinterpret_cast<int16_t*>(audio_buffer->mData)
     
-    bool status = _nativeFactory->putAudioSample({
-        std::move(_record_audio_buffer), // buffer
+    bool status = _adm->putAudioSample({
+        buffer, // buffer
+        buffer_size, // buffer size
         kFixedRecordDelayEstimate, // record_delay_ms
     });
 
     //TODO: check memory cleanup
-    logFrame(@"[RTCPeerConnectionFactory] CFRelease(blockBuffer)");
+    logFrame(@"CFRelease(blockBuffer)");
     CFRelease(blockBuffer);
 //    logFrame(@"[RTCPeerConnectionFactory] CFRelease(descr)");
 //    CFRelease(descr);

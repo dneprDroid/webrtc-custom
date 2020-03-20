@@ -55,7 +55,11 @@ typedef struct {
 //    uint32_t num_frames;
 //    AudioBufferList* io_data;
     
-    rtc::BufferT<int16_t> buffer;
+//    rtc::BufferT<int16_t> buffer;
+//    int record_delay;
+
+    const int16_t *buffer;
+    size_t buffer_size;
     int record_delay;
 } AudioSample;
 

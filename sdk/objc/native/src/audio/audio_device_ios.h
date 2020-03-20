@@ -261,6 +261,8 @@ class AudioDeviceIOS : public AudioDeviceGeneric,
 
   // Set to 1 when recording is active and 0 otherwise.
   volatile int recording_;
+                           
+  volatile bool audio_sampling_initialized_;
 
   // Set to 1 when playout is active and 0 otherwise.
   volatile int playing_;

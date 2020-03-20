@@ -70,6 +70,7 @@ enum AudioDeviceMessageType : uint32_t {
   kMessageTypeCanPlayOrRecordChange,
   kMessageTypePlayoutGlitchDetected,
   kMessageOutputVolumeChange,
+  kMessageTypePutAudioSample,
 };
 
 using ios::CheckAndLogError;
@@ -105,6 +106,7 @@ AudioDeviceIOS::AudioDeviceIOS()
     : audio_device_buffer_(nullptr),
       audio_unit_(nullptr),
       recording_(0),
+      audio_sampling_initialized_(false),
       playing_(0),
       initialized_(false),
       audio_is_initialized_(false),
@@ -366,7 +368,9 @@ void AudioDeviceIOS::OnChangedOutputVolume() {
 }
 
 bool AudioDeviceIOS::putAudioSample(const AudioSample &sample) {
-    fine_audio_buffer_->DeliverRecordedData(sample.buffer, sample.record_delay);
+    RTC_DCHECK(thread_);
+    thread_->Post(RTC_FROM_HERE, this, kMessageTypePutAudioSample,
+                  new rtc::TypedMessageData<AudioSample>(sample));
     return true; //TODO: handle DeliverRecordedData result
 }
 
@@ -492,6 +496,19 @@ void AudioDeviceIOS::OnMessage(rtc::Message* msg) {
     case kMessageTypeCanPlayOrRecordChange: {
       rtc::TypedMessageData<bool>* data = static_cast<rtc::TypedMessageData<bool>*>(msg->pdata);
       HandleCanPlayOrRecordChange(data->data());
+      delete data;
+      break;
+    }
+    case kMessageTypePutAudioSample: {
+      if (!audio_sampling_initialized_) {
+          InitPlayout();
+          SetupAudioBuffersForActiveAudioSession();
+          audio_sampling_initialized_ = true;
+      }
+      rtc::TypedMessageData<AudioSample>* data = static_cast<rtc::TypedMessageData<AudioSample>*>(msg->pdata);
+      AudioSample &sample = data->data();
+      int record_delay = sample.record_delay;
+      fine_audio_buffer_->DeliverRecordedData({sample.buffer, sample.buffer_size}, record_delay);
       delete data;
       break;
     }
