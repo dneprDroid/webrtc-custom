@@ -366,14 +366,8 @@ void AudioDeviceIOS::OnChangedOutputVolume() {
 }
 
 bool AudioDeviceIOS::putAudioSample(const AudioSample &sample) {
-    OSStatus status = OnDeliverRecordedData(
-                                            sample.flags,
-                                            sample.time_stamp,
-                                            sample.bus_number,
-                                            sample.num_frames,
-                                            sample.io_data
-                                            );
-    return status == noErr;
+    fine_audio_buffer_->DeliverRecordedData(sample.buffer, sample.record_delay);
+    return true; //TODO: handle DeliverRecordedData result
 }
 
 

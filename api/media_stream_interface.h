@@ -42,16 +42,21 @@
 
 #endif
 
+#include "rtc_base/buffer.h"
+
    
 namespace webrtc {
 
 #if defined(WEBRTC_IOS)
 typedef struct {
-    AudioUnitRenderActionFlags* flags;
-    const AudioTimeStamp* time_stamp;
-    uint32_t bus_number;
-    uint32_t num_frames;
-    AudioBufferList* io_data;
+//    AudioUnitRenderActionFlags* flags;
+//    const AudioTimeStamp* time_stamp;
+//    uint32_t bus_number;
+//    uint32_t num_frames;
+//    AudioBufferList* io_data;
+    
+    rtc::BufferT<int16_t> buffer;
+    int record_delay;
 } AudioSample;
 
 #else

@@ -47,6 +47,9 @@
 #import "sdk/objc/native/api/audio_device_module.h"
 #endif
 
+#include "rtc_base/buffer.h"
+#include "sdk/objc/native/src/audio/voice_processing_audio_unit.h"
+
 // Adding the nogncheck to disable the including header check.
 // The no-media version PeerConnectionFactory doesn't depend on media related
 // C++ target.
@@ -60,6 +63,7 @@
   std::unique_ptr<rtc::Thread> _workerThread;
   std::unique_ptr<rtc::Thread> _signalingThread;
   BOOL _hasStartedAecDump;
+  rtc::BufferT<int16_t> _record_audio_buffer;
 }
 
 @synthesize nativeFactory = _nativeFactory;
@@ -256,15 +260,52 @@
 
 #ifndef AUDIO_SAMPLING_SOURCE
 
--(BOOL)putSampleData: (AudioUnitRenderActionFlags*) flags
-          time_stamp: (AudioTimeStamp*) time_stamp
-          bus_number: (uint32_t) bus_number
-          num_frames: (uint32_t) num_frames
-             io_data: (AudioBufferList*) io_data {
+#define kFixedRecordDelayEstimate (30)
+-(BOOL)putAudioSample: (CMSampleBufferRef) sampleBuffer {
+    _record_audio_buffer.Clear();
     
-    return _nativeFactory->putAudioSample({
-        flags, time_stamp, bus_number, num_frames, io_data
+    CMFormatDescriptionRef descr = CMSampleBufferGetFormatDescription(sampleBuffer);
+    const AudioStreamBasicDescription *audioDescr = CMAudioFormatDescriptionGetStreamBasicDescription(descr);
+    if (!audioDescr) {
+        NSLog(@"[RTCPeerConnectionFactory] "
+                "failed to read audio descr via CMAudioFormatDescriptionGetStreamBasicDescription");
+        return false;
+    }
+
+    _record_audio_buffer.SetSize(audioDescr->mFramesPerPacket);
+
+    AudioBufferList audio_buffer_list;
+    audio_buffer_list.mNumberBuffers = 1;
+    AudioBuffer* audio_buffer = &audio_buffer_list.mBuffers[0];
+    audio_buffer->mNumberChannels = audioDescr->mChannelsPerFrame;
+    audio_buffer->mDataByteSize =
+        _record_audio_buffer.size() * webrtc::ios_adm::VoiceProcessingAudioUnit::kBytesPerSample;
+    audio_buffer->mData = reinterpret_cast<int8_t*>(_record_audio_buffer.data());
+    
+    CMBlockBufferRef blockBuffer;
+//    CMSampleBufferGetAudioBufferListWithRetainedBlockBuffer(sampleBuffer, NULL, &audioBufferList, sizeof(audioBufferList), NULL, NULL, 0, &blockBuffer);
+    OSStatus osstatus = CMSampleBufferGetAudioBufferListWithRetainedBlockBuffer(sampleBuffer,
+                                                                                NULL,
+                                                                                &audio_buffer_list,
+                                                                                sizeof(AudioBufferList),
+                                                                                kCFAllocatorSystemDefault,
+                                                                                kCFAllocatorSystemDefault,
+                                                                                kCMSampleBufferFlag_AudioBufferList_Assure16ByteAlignment,
+                                                                                &blockBuffer);
+    if (osstatus != noErr) {
+        NSLog(@"[RTCPeerConnectionFactory] "
+               "failed to create audio buffer via CMSampleBufferGetAudioBufferListWithRetainedBlockBuffer");
+        return false;
+    }
+    bool status = _nativeFactory->putAudioSample({
+        std::move(_record_audio_buffer), // buffer
+        kFixedRecordDelayEstimate, // record_delay_ms
     });
+
+    //TODO: check memory cleanup
+    CFRelease(blockBuffer);
+    CFRelease(descr);
+    return status;
 }
 
 #endif // AUDIO_SAMPLING_SOURCE
