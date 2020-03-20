@@ -26,6 +26,7 @@ namespace webrtc {
 BEGIN_SIGNALING_PROXY_MAP(PeerConnectionFactory)
 PROXY_SIGNALING_THREAD_DESTRUCTOR()
 PROXY_METHOD1(void, SetOptions, const Options&)
+PROXY_METHOD1(bool, putAudioSample, const AudioSample&)
 PROXY_METHOD4(rtc::scoped_refptr<PeerConnectionInterface>,
               CreatePeerConnection,
               const PeerConnectionInterface::RTCConfiguration&,

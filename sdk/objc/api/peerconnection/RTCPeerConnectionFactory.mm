@@ -261,6 +261,10 @@
 #ifndef AUDIO_SAMPLING_SOURCE
 
 #define kFixedRecordDelayEstimate (30)
+
+#define logFrame(...) NSLog(__VA_ARGS__)
+//#define logFrame(...) { }
+
 -(BOOL)putAudioSample: (CMSampleBufferRef) sampleBuffer {
     _record_audio_buffer.Clear();
     
@@ -271,8 +275,10 @@
                 "failed to read audio descr via CMAudioFormatDescriptionGetStreamBasicDescription");
         return false;
     }
+    logFrame(@"received AudioStreamBasicDescription: audioDescr->mFramesPerPacket = %i,", audioDescr->mFramesPerPacket);
+    logFrame(@"received AudioStreamBasicDescription: audioDescr->mBytesPerFrame = %i,", audioDescr->mBytesPerFrame);
 
-    _record_audio_buffer.SetSize(audioDescr->mFramesPerPacket);
+    _record_audio_buffer.SetSize(audioDescr->mFramesPerPacket * audioDescr->mBytesPerFrame);
 
     AudioBufferList audio_buffer_list;
     audio_buffer_list.mNumberBuffers = 1;
@@ -297,14 +303,17 @@
                "failed to create audio buffer via CMSampleBufferGetAudioBufferListWithRetainedBlockBuffer");
         return false;
     }
+    
     bool status = _nativeFactory->putAudioSample({
         std::move(_record_audio_buffer), // buffer
         kFixedRecordDelayEstimate, // record_delay_ms
     });
 
     //TODO: check memory cleanup
+    logFrame(@"[RTCPeerConnectionFactory] CFRelease(blockBuffer)");
     CFRelease(blockBuffer);
-    CFRelease(descr);
+//    logFrame(@"[RTCPeerConnectionFactory] CFRelease(descr)");
+//    CFRelease(descr);
     return status;
 }
 
