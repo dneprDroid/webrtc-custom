@@ -151,7 +151,10 @@ class AudioDeviceModule : public rtc::RefCountInterface {
   // TODO(alexnarest): Make it abstract after upstream projects support it.
   virtual int32_t GetPlayoutUnderrunCount() const { return -1; }
     
-  virtual bool putAudioSample(const AudioSample &sample) { return false; }
+  virtual bool putAudioSample(const AudioSample &sample) {
+    printf("[AudioDeviceModule] putAudioSample not impl.");
+    return false;
+  }
 
 // Only supported on iOS.
 #if defined(WEBRTC_IOS)

@@ -128,7 +128,10 @@ class AudioDeviceGeneric {
   // Play underrun count.
   virtual int32_t GetPlayoutUnderrunCount() const;
 
-  virtual bool putAudioSample(const AudioSample &sample) { return false; }
+  virtual bool putAudioSample(const AudioSample &sample) {
+    printf("[AudioDeviceGeneric] putAudioSample not impl.");
+    return false;
+  }
     
 // iOS only.
 // TODO(henrika): add Android support.

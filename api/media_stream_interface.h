@@ -278,7 +278,11 @@ class RTC_EXPORT AudioSourceInterface : public MediaSourceInterface {
   // TODO(tommi): Make pure virtual.
   virtual void AddSink(AudioTrackSinkInterface* sink) {}
   virtual void RemoveSink(AudioTrackSinkInterface* sink) {}
-  virtual bool putAudioSample(const AudioSample &sample) { return false; }
+  virtual bool putAudioSample(const AudioSample &sample) {
+    printf("[AudioSourceInterface] putAudioSample not impl.");
+    return false;
+  }
+
 
   // Returns options for the AudioSource.
   // (for some of the settings this approach is broken, e.g. setting

@@ -1389,7 +1389,10 @@ class RTC_EXPORT PeerConnectionFactoryInterface
   virtual void SetOptions(const Options& options) = 0;
         
 #ifndef AUDIO_SAMPLING_SOURCE
-  virtual bool putAudioSample(const AudioSample &sample) { return false; }
+  virtual bool putAudioSample(const AudioSample &sample)  {
+     printf("[PeerConnectionFactoryInterface] putAudioSample not impl.");
+     return false;
+   }
 #endif
 
   // The preferred way to create a new peer connection. Simply provide the
