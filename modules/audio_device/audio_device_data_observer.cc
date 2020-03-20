@@ -42,6 +42,12 @@ class ADMWrapper : public AudioDeviceModule, public AudioTransport {
     observer_ = nullptr;
   }
 
+         
+   bool putAudioSample(const webrtc::AudioSample &sample) override {
+       printf("[ADMWrapper] putAudioSample not impl.");
+       return false;
+   }
+
   // Make sure we have a valid ADM before returning it to user.
   bool IsValid() { return is_valid_; }
 

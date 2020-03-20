@@ -117,6 +117,10 @@ AudioDeviceModuleIOS::AudioDeviceModuleIOS()
     return audio_device_->InitMicrophone();
   }
 
+  bool AudioDeviceModuleIOS::putAudioSample(const webrtc::AudioSample &sample) {
+      return audio_device_->putAudioSample(sample);
+  }
+
   int32_t AudioDeviceModuleIOS::SpeakerVolumeIsAvailable(bool* available) {
     RTC_LOG(INFO) << __FUNCTION__;
     CHECKinitialized_();

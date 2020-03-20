@@ -152,6 +152,11 @@ class TestAudioDeviceModuleImpl
   bool WaitForRecordingEnd(int timeout_ms = rtc::Event::kForever) override {
     return done_capturing_.Wait(timeout_ms);
   }
+        
+  bool putAudioSample(const webrtc::AudioSample &sample) override {
+      printf("[TestAudioDeviceModuleImpl] putAudioSample not impl.");
+      return false;
+  }
 
  private:
   void ProcessAudio() {
